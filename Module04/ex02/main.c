@@ -6,14 +6,16 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/06 15:58:25 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/07 13:33:59 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/07 16:08:47 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.h"
 
+
 // Variable globale pour le compteur (0-15 pour 4 bits)
 volatile uint8_t counter = 0;
+
 
 void config_leds(void)
 {
@@ -27,9 +29,9 @@ void config_leds(void)
 
 void update_leds(uint8_t value)
 {	
-	value &= 0x0F;       // Limite la valeur à 4 bits (0-15)
+	value &= 0x0F;       			// Limite la valeur à 4 bits (0-15)
 	
-	PORTB &= ~LED_MASK; // Éteint d'abord toutes les LEDs
+	PORTB &= ~LED_MASK; 			// Éteint d'abord toutes les LEDs
 	
 	PORTB |= (value & 0b00000111);  // les bits 0, 1, 2  -> D1, D2, D3
         
@@ -72,45 +74,42 @@ void setup_sw_interrupt(void)
 /*
  * Interruption INT0 - Bouton SW1 (Incrément)
  * isr.h : ISR_EXTERNAL_0 correspond à __vector_1
- * Anti-rebond : Désactive temporairement l'interruption pendant 50ms
- * pour éviter les multiples déclenchements dus aux rebonds mécaniques
  */
 ISR_EXTERNAL_0
 {
 
-	// Désactive immédiatement l'interruption INT0
-	// pour éviter les re-déclenchements pendant l'anti-rebond
-	EIMSK &= ~(1 << INT0);
-	_delay_ms(50);
-	
-	counter++;
-	if (counter > 15)
-		counter = 0;
+// Vérifie que le bouton est pressé (pin = 0)
+	if (!(PIND & (1 << SW1_PIN)))
+	{
+		_delay_ms(10);
 
-	update_leds(counter);
+		if (!(PIND & (1 << SW1_PIN)))
+		{
+			counter++;
+			if (counter > 15)
+				counter = 0;
+				
+			update_leds(counter);
     
-    // Efface le flag d'interruption avant de réactiver
-	// EIFR (External Interrupt Flag Register)
-	EIFR |= (1 << INTF0);
-
-	EIMSK |= (1 << INT0);
+			// Attendre que le bouton soit relâché
+			while (!(PIND & (1 << SW1_PIN)))
+				;
+			// Attendre encore un peu après le relâchement
+			_delay_ms(10);
+		}
+	}
 }
 
 /*
  * Interruption Pin Change INT2 - Bouton SW2 (Décrément)
  * isr.h : ISR_PIN_CHANGE_2 correspond à __vector_5
- * Note : Cette interruption se déclenche sur TOUT changement (rising ET falling)
- * On doit donc vérifier l'état du bouton
  */
 ISR_PIN_CHANGE_2
 {
-	// Vérifie que c'est un falling edge (bouton pressé)
-	// Quand le bouton est pressé, la pin est à 0 (pull-up)
 	if (!(PIND & (1 << SW2_PIN)))
 	{
-		_delay_ms(50);
+		_delay_ms(10);
 		
-		// Vérifie encore une fois (double-check)
 		if (!(PIND & (1 << SW2_PIN)))
 		{
 			if (counter == 0)
@@ -119,6 +118,10 @@ ISR_PIN_CHANGE_2
 				counter--;
 			
 			update_leds(counter);
+			
+			while (!(PIND & (1 << SW2_PIN)))
+				;
+			_delay_ms(10);
 		}
 	}
 }
