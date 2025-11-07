@@ -2,6 +2,46 @@
 #define ISR_H
 
 // https://ww1.microchip.com/downloads/en/DeviceDoc/ATmega48A-PA-88A-PA-168A-PA-328-P-DS-DS40002061A.pdf
+// https://www.nongnu.org/avr-libc/user-manual/group__avr__interrupts.html
+
+// #define ISR(n) __attribute__((signal)) void __vector_##n()
+//    │    │   │         │                         │    ││  │
+//    │    │   │         │                         │    ││  └─ Parenthèses de fonction
+//    │    │   │         │                         │    │└─ Valeur du paramètre collée
+//    │    │   │         │                         │    └─ Token pasting operator
+//    │    │   │         │                         └─ Nom de base du vecteur
+//    │    │   │         └─ Attribut GCC pour ISR (RETI + sauvegarde contexte)
+//    │    │   └─ Paramètre (numéro du vecteur)
+//    │    └─ Nom de la macro
+//    └─ Directive préprocesseur
+
+/* __attribute__((signal)) : attribut GCC (spécifique au compilateur avr-gcc)
+ * Indique au compilateur que cette fonction est une routine d'interruption
+ * Le compilateur va :
+ *  - Sauvegarder automatiquement tous les registres au début
+ *  - Restaurer tous les registres à la fin
+ *  - Utiliser l'instruction RETI au lieu de RET (Return from Interrupt)
+ *  - Désactiver l'optimisation qui pourrait casser le contexte d'interruption
+*/
+
+
+/* void __vector_##n() : nom de la fonction avec le token pasting operator ##
+ * opérateur ## (token pasting): colle 2 tokens ensemble pendant la préprocession.
+ * Exple :
+ *      #define ISR_EXTERNAL_0  ISR(1)
+ *          // Étape 1 : Remplace ISR_EXTERNAL_0 par ISR(1)
+            ISR_EXTERNAL_0
+                ↓
+            ISR(1)
+
+            // Étape 2 : Remplace n par 1 dans la macro ISR
+            #define ISR(n) __attribute__((signal)) void __vector_##n()
+                                                                ↓
+                        __attribute__((signal)) void __vector_##1()
+
+            // Étape 3 : Token pasting (## colle __vector_ et 1)
+                        __attribute__((signal)) void __vector_1()
+*/
 
 #define ISR(n) __attribute__((signal)) void __vector_##n()
 

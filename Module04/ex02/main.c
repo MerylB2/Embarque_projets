@@ -6,7 +6,7 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/06 15:58:25 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/06 16:33:55 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/07 13:33:59 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,29 +26,12 @@ void config_leds(void)
 }
 
 void update_leds(uint8_t value)
-{
-	/*
-	 * Mapping des bits :
-	 * - bit0 de value -> PB0 (D1)
-	 * - bit1 de value -> PB1 (D2)
-	 * - bit2 de value -> PB2 (D3)
-	 * - bit3 de value -> PB4 (D4) <- Décalage de 1 bit
-	 */
-	
-	
+{	
 	value &= 0x0F;       // Limite la valeur à 4 bits (0-15)
-	
 	
 	PORTB &= ~LED_MASK; // Éteint d'abord toutes les LEDs
 	
-	if (value & (1 << 0))
-		PORTB |= (1 << LED_D1);
-	
-	if (value & (1 << 1))
-		PORTB |= (1 << LED_D2);
-
-	if (value & (1 << 2))
-		PORTB |= (1 << LED_D3);
+	PORTB |= (value & 0b00000111);  // les bits 0, 1, 2  -> D1, D2, D3
         
 	if (value & (1 << 3))
 		PORTB |= (1 << LED_D4);
@@ -56,11 +39,7 @@ void update_leds(uint8_t value)
 
 void setup_sw_interrupt(void)
 {
-	/*
-	 * Configuration SW1 sur INT0 (PD2)
-	 */
-	
-	// Configure SW1 en entrée avec pull-up
+	// Configure SW1 sur INT0 (PD2) en entrée avec pull-up
 	SW1_DDR &= ~(1 << SW1_PIN);
 	SW1_PORT |= (1 << SW1_PIN);
 	
@@ -120,7 +99,6 @@ ISR_EXTERNAL_0
 /*
  * Interruption Pin Change INT2 - Bouton SW2 (Décrément)
  * isr.h : ISR_PIN_CHANGE_2 correspond à __vector_5
- * 
  * Note : Cette interruption se déclenche sur TOUT changement (rising ET falling)
  * On doit donc vérifier l'état du bouton
  */

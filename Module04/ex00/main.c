@@ -6,14 +6,14 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/06 12:49:11 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/06 15:28:49 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/07 13:27:13 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "main.h"
 
 /* 
- * Configuration matérielle (voir schéma elec42_pool.pdf) :
+ * Configuration matérielle (voir schéma ) :
  * - SW1 -> PD2 - pin 32 (INTO)
  * - LED_D1 -> connectée à PB0
  */
