@@ -6,7 +6,7 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/06 12:49:11 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/07 13:27:13 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/07 17:30:24 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ void setup_sw_interrupt(void)
 	//   1     0   | Falling edge (front descendant)
 	//   1     1   | Rising edge (front montant)
 	
-	// On utilise falling edge (appui sur le bouton - front descendant
+	// On utilise falling edge (appui sur le bouton - front descendant)
 	EICRA |= (1 << ISC01);
 	EICRA &= ~(1 << ISC00);
 

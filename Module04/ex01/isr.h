@@ -4,7 +4,7 @@
 // https://ww1.microchip.com/downloads/en/DeviceDoc/ATmega48A-PA-88A-PA-168A-PA-328-P-DS-DS40002061A.pdf
 // https://www.nongnu.org/avr-libc/user-manual/group__avr__interrupts.html
 
-// #define ISR(n) __attribute__((signal)) void __vector_##n()
+// #define ISR(n) __attribute__((signal))void __vector_##n()
 //    │    │   │         │                         │    ││  │
 //    │    │   │         │                         │    ││  └─ Parenthèses de fonction
 //    │    │   │         │                         │    │└─ Valeur du paramètre collée
