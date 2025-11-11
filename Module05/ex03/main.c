@@ -5,33 +5,29 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/11/07 17:13:23 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/11 14:38:48 by cmetee-b         ###   ########.fr       */
+/*   Created: 2025/11/11 17:48:23 by cmetee-b          #+#    #+#             */
+/*   Updated: 2025/11/11 20:22:46 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 
 #include "uart.h"
 
 int main(void)
 {
-    uint8_t adc_value;
-
+    int16_t temp;
+    
     uart_init();
     adc_init();
     
     while (1)
     {
-        adc_value = adc_read(0);
-        uart_printhex(adc_value);
-        uart_printstr(", ");
-        adc_value = adc_read(1);
-        uart_printhex(adc_value);
-        uart_printstr(", ");
-        adc_value = adc_read(2);
-        uart_printhex(adc_value);
-        uart_printstr("\r\n");
+        temp = convert_to_celsius();
 
+        uart_printstr(int_to_str(temp));
+        uart_printstr("\r\n");
+        
         _delay_ms(20);
     }
+    
+    return 0;
 }

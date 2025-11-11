@@ -6,7 +6,7 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/07 17:13:17 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/08 18:12:22 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/11 17:43:20 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,20 +19,20 @@ void uart_init(void)
      * UBRR = (F_CPU / (8 * BAUDRATE)) - 1 (table 20-1  page 182)
      * Pour 16MHz et 115200 bauds : UBRR = 16 (erreur +2.1%) p.196 - ligne 4 table(20-4)
      */
-    uint16_t ubrr = (F_CPU / (8UL * BAUD)) - 1;
-    
-    /* Configuration du baudrate (p.182) 
-     * "UBRRnContents of the UBRRnH and UBRRnL Registers, (0-4095)"
-     * voir aussi : USART initialization code example (20.5 - p 184-185)
-     */
-    UBRR0H = (uint8_t)(ubrr >> 8);
-    UBRR0L = (uint8_t)(ubrr);
+    unsigned int ubrr = (F_CPU / (8UL * BAUD)) - 1;
     
     /* Activation du mode double vitesse U2X0 (20.3.2 - p.182)
      * Bit 1 – U2Xn: Double the USART Transmission Speed (p.201)
 	 * Permet une meilleure précision du baud rate
 	 */
     UCSR0A = (1 << U2X0);
+    
+    /* Configuration du baudrate (p.182) 
+     * "UBRRnContents of the UBRRnH and UBRRnL Registers, (0-4095)"
+     * voir aussi : USART initialization code example (20.5 - p 184-185)
+     */
+    UBRR0H = (unsigned int)(ubrr >> 8);
+    UBRR0L = (unsigned int)(ubrr);
     
     /* Activation du transmetteur (20.6 - p.185-186)
      * 20.11.3 UCSRnB – USART Control and Status Register n B (p.201-202)
@@ -59,10 +59,27 @@ void uart_printstr(const char *str)
         uart_tx(*str++);
 }
 
-void uart_printhex(uint8_t value)
+// Conversion et affichage d'un nbr en décimal (0-1023 -> ADC 10 bits)
+char* printdec(uint16_t value)
 {
-    const char hex[] = "0123456789abcdef";
+   static char str[5] = {0};                       // 4 caractères + '\0'
     
-    uart_tx(hex[(value >> 4) & 0x0F]);
-    uart_tx(hex[value & 0x0F]);
+    // Extraire chaque chiffre
+    str[0] = (value / 1000) % 10 + '0';             // Milliers
+    str[1] = (value / 100) % 10 + '0';              // Centaines
+    str[2] = (value / 10) % 10 + '0';               // Dizaines
+    str[3] = (value % 10) + '0';                    // Unités
+    str[4] = '\0';
+    
+    // Remplacer les zéros de tête par des espaces/vide
+    // Ex: "0042" devient "  42"
+    for (uint8_t i = 0; i < 3; i++)
+    {
+        if (str[i] == '0')
+            str[i] = ' ';
+        else
+            break;  // Arrêter au premier chiffre non-zéro
+    }
+    
+    return str;
 }

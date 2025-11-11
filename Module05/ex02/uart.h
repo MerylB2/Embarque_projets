@@ -6,7 +6,7 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/07 17:18:19 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/08 17:51:35 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/11 17:08:53 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,8 @@ void uart_init(void);
 /* Transmission d'un caractère via UART */
 void uart_tx(char c);
 
-/* Conversion et affichage en hexadécimal */
-void uart_printhex(uint8_t value);
+/* Conversion et affichage en décimal */
+char* printdec(uint16_t value);
 
 /* Transmission d'une chaîne de caractères via UART */
 void uart_printstr(const char* str);
@@ -35,6 +35,6 @@ void uart_printstr(const char* str);
 void adc_init(void);
 
 /* Lecture de l'ADC */
-uint8_t adc_read(uint8_t channel);
+uint16_t adc_read(uint8_t channel);
 
 #endif

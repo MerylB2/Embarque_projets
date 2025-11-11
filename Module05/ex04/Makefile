@@ -9,7 +9,10 @@ BAUDRATE	= 115200
 CC			= avr-gcc
 OBJCOPY		= avr-objcopy
 AVRDUDE		= avrdude
-CFLAGS		= -Wall -Os -DF_CPU=$(F_CPU) -mmcu=$(MCU)
+CFLAGS		= -Wall -Os -DF_CPU=$(F_CPU) -mmcu=$(MCU) -DBAUD=$(BAUDRATE)
+
+# Fichiers source
+SRC			= main.c adc.c led.c
 
 #colors
 RED			= \033[1;31m
@@ -19,22 +22,22 @@ BLUE		= \033[1;34m
 CYAN		= \033[1;36m
 RESET		= \033[0m
 
-# general rule
+# General rule
 all: hex flash
 
-# compilation  : .c -> .bin 
-main.bin: main.c
-	@echo "$(BLUE)=== Compilation de main.c ===$(RESET)"
-	@$(CC) $(CFLAGS) -o main.bin main.c
+# Compilation : .c -> .bin
+main.bin: $(SRC)
+	@echo "$(BLUE)=== Compilation des fichiers sources ===$(RESET)"
+	@$(CC) $(CFLAGS) -o main.bin $(SRC)
 	@echo "$(CYAN)✓ Fichier main.bin créé$(RESET)"
 
-# conversion: .bin -> .hex
+# Conversion: .bin -> .hex
 hex: main.bin
 	@echo "$(BLUE)=== Conversion en format HEX ===$(RESET)"
 	@$(OBJCOPY) -O ihex main.bin main.hex
 	@echo "$(CYAN)✓ Fichier main.hex créé$(RESET)"
 
-# flash du cpu
+# Flash du CPU
 flash: hex
 	@echo "$(YELLOW)=== Flashage du microcontrôleur ===$(RESET)"
 	@$(AVRDUDE) -c $(PROG) -p $(MCU) -P $(PORT) -b $(BAUDRATE) -U flash:w:main.hex:i

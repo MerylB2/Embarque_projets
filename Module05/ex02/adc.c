@@ -6,14 +6,11 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/07 18:19:27 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/08 18:06:42 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/11 17:19:47 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "uart.h"
-
-// https://ww1.microchip.com/downloads/en/DeviceDoc/ATmega48A-PA-88A-PA-168A-PA-328-P-DS-DS40002061A.pdf
-// Configuration de l'ADC en 8 bits avec AVCC comme référence
 
 void adc_init(void)
 {
@@ -23,27 +20,27 @@ void adc_init(void)
      */
     ADMUX = (1 << REFS0);
     
-    /* Ajustement à gauche pour lecture 8 bits
-     * Bit 5 – ADLAR: ADC Left Adjust Result
-     * Section 24.9.3.2 (p.259) ADLAR = 1: les 8 bits MSB sont dans ADCH
-     */
-    ADMUX |= (1 << ADLAR);
-    
     /* Activation de l'ADC (page 258, registre ADCSRA)
      * Bit 7 – ADEN: ADC Enable
      * ADEN = 1 : Active l'ADC
      */
-    ADCSRA = (1 << ADEN);
+    ADCSRA = (1 << ADEN);  // D'ABORD activer l'ADC
     
     /* Configuration du prescaler (page 259)
      * Prescaler 128 : 16MHz/128 = 125kHz (optimal)
      * ADPS[2:0] = 111 pour prescaler 128
      */
-    ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
+    ADCSRA |= (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);  // PUIS ajouter le prescaler avec |=
+    
+    /* Première conversion dummy (page 258)
+     * La première conversion après activation doit être jetée
+     */
+    ADCSRA |= (1 << ADSC);
+    while (ADCSRA & (1 << ADSC));
 
 }
 
-uint8_t adc_read(uint8_t channel)
+uint16_t adc_read(uint8_t channel)
 {
     /* Sélection du canal (Table 24-4. Input Channel Selections):
      *    ADC0 (PC0 où est connecté RV1)
@@ -63,5 +60,7 @@ uint8_t adc_read(uint8_t channel)
     
     while (ADCSRA & (1 << ADSC))
         ;
-    return ADCH;
+    
+    // Lecture 10 bits : ADCL puis ADCH (ordre obligatoire, page 259)
+    return ADC;
 }

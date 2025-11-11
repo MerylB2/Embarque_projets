@@ -6,7 +6,7 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/07 17:18:19 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/11 14:41:32 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/11 20:19:14 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,22 +19,22 @@
 
 # define UART_BAUDRATE 115200
 
-/* Initialisation de l'UART */
 void uart_init(void);
 
-/* Transmission d'un caractère via UART */
 void uart_tx(char c);
 
-/* Conversion et affichage en hexadécimal */
-void uart_printhex(uint8_t value);
-
-/* Transmission d'une chaîne de caractères via UART */
 void uart_printstr(const char* str);
 
-/* Initialisation de l'ADC */
+/* Conversion d'un nombre signé en string (pour temp négative) */
+char* int_to_str(int16_t value);
+
+/* ADC */
 void adc_init(void);
 
-/* Lecture de l'ADC */
-uint8_t adc_read(uint8_t channel);
+/* Lecture brute du capteur de température */
+uint16_t adc_read_temp(void);
+
+/* Conversion en degrés Celsius */
+int16_t convert_to_celsius(void);
 
 #endif
