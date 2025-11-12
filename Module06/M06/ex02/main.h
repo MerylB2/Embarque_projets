@@ -6,7 +6,7 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 13:04:30 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/12 20:00:43 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/12 18:01:16 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,11 +61,5 @@ void uart_printstr(const char* str);
 
 // Envoie une chaîne avec retour à la ligne
 void uart_println(const char *str);
-
-/* Autres */
-void print_status(const char *msg);
-
-// Réinitialise le module I2C (utile après erreurs)
-void i2c_reset(void);
 
 #endif
