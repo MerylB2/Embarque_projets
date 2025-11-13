@@ -6,7 +6,7 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 18:12:32 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/13 17:58:50 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/13 17:07:46 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,11 @@
 int main(void)
 {
     uint8_t sensor_initialized = 0;
-
-    // Buffer pour stocker les 3 dernières mesures
-    float temp_history[3] = {0, 0, 0};
-    float hum_history[3] = {0, 0, 0};
-    uint8_t measure_count = 0;
-    
     uart_init();
     i2c_init();
     
     // Attendre 40ms après power-on
+    // Référence: AHT20 Datasheet section 5.4 "Sensor Reading Process"
     _delay_ms(40);
     
     while (1)
@@ -32,6 +27,7 @@ int main(void)
         // Vérifier si le capteur est initialisé
         if (!sensor_initialized)
         {
+            // Lire le status byte pour vérifier la calibration
             i2c_start();
             i2c_write((AHT20_ADDR << 1) | I2C_READ);
             i2c_read();
@@ -44,9 +40,10 @@ int main(void)
             else
                 sensor_initialized = 1;
         }
-        
+        // Buffer pour stocker les 7 octets
         char data[7];
-
+        
+        //trigger mesure
         aht20_trigger_measurement();
         
         // Lecture des 7 octets
@@ -67,41 +64,13 @@ int main(void)
         
         i2c_stop();
         
-        // Calculer température et humidité
-        float temperature = calculate_temperature(data);
-        float humidity = calculate_humidity(data);
-        
-        // Stocker dans l'historique
-        temp_history[measure_count % 3] = temperature;
-        hum_history[measure_count % 3] = humidity;
-        measure_count++;
-        
-        // Calculer la moyenne des 3 dernières mesures
-        float temp_avg = 0;
-        float hum_avg = 0;
-        uint8_t count = (measure_count < 3) ? measure_count : 3;
-        
-        for (uint8_t i = 0; i < count; i++)
-        {
-            temp_avg += temp_history[i];
-            hum_avg += hum_history[i];
-        }
-        
-        temp_avg /= count;
-        hum_avg /= count;
-        
-        // Afficher le résultat
-        // Format: "Temperature: XX.X°C, Humidity: XX.X%"
-        uart_printstr("Temperature: ");
-        uart_printfloat(temp_avg, 1);  // 1 décimale
-        uart_printstr("C, Humidity: ");
-        uart_printfloat(hum_avg, 1);   // 1 décimale
-        uart_println("%");
+        // Afficher les 7 octets avec print_hex_value
+        print_hex_value(data);
         
         // Attendre 1 seconde avant la prochaine mesure
+        // (fréquence recommandée pour éviter de saturer le capteur)
         _delay_ms(1000);
     }
     
     return 0;
 }
-

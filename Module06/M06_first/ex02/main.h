@@ -6,7 +6,7 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 13:04:30 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/13 17:46:50 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/12 18:01:16 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,6 @@
 
 # define UART_BAUDRATE 115200
 
-#define I2C_WRITE 0
-#define I2C_READ  1
 
 /* I2C */
 
@@ -34,38 +32,34 @@ void i2c_start(void);
 // Termine une transmission I2C (condition STOP)
 void i2c_stop(void);
 
-/* utiles pour faciliter la communication*/
+// Envoie un octet sur le bus I2C
+void i2c_write(uint8_t data);
 
-// Écrit le contenu du registre TWDR et l'envoie au capteur
-void i2c_write(unsigned char data);
+// Lit un octet avec ACK
+uint8_t i2c_read_ack(void);
 
-// Affiche le contenu du registre TWDR après la mesure par le capteur (avec ACK)
-void i2c_read(void);
+// Lit un octet avec NACK (dernier octet)
+uint8_t i2c_read_nack(void);
 
-// Lit le dernier octet avec NACK
-void i2c_read_last(void);
-
-// Retourne le status I2C
+// Retourne le status de l'I2C (TWSR masqué)
 uint8_t i2c_get_status(void);
 
 
 /* UART */
 
+// Initialisation de l'UART
 void uart_init(void);
 
+// Transmission d'un caractère via UART
 void uart_tx(char c);
 
+// Conversion et affichage en hexadécimal
 void uart_printhex(uint8_t value);
 
+// Transmission d'une chaîne de caractères via UART
 void uart_printstr(const char* str);
 
 // Envoie une chaîne avec retour à la ligne
 void uart_println(const char *str);
-
-/* Écrit le contenu des 7 octets d'une mesure AHT20 en hexa */
-void print_hex_value(char *c);
-
-/*  Affiche un float avec précision donnée */
-void uart_printfloat(float value, uint8_t precision);
 
 #endif

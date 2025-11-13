@@ -6,7 +6,7 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 13:04:30 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/12 20:00:43 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/13 16:18:10 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,10 +15,21 @@
 
 #include <avr/io.h>
 #include <util/twi.h>
-#include <util/delay.h>
-#include "aht20.h"
 
 # define UART_BAUDRATE 115200
+
+/* 
+ * Adresse I2C de l'AHT20 (7 bits)
+ * Référence: AHT20 Datasheet section 5.3 "Send Command" p.8
+ */
+#define AHT20_ADDR 0x38
+
+/*
+ * Commandes AHT20
+ * Référence: AHT20 Datasheet Table 9 "Basic Commands" p.8
+ */
+#define AHT20_INIT_CMD    0xBE  // 1011 1110 - Initialization
+#define AHT20_TRIGGER_CMD 0xAC  // 1010 1100 - Trigger Measurement
 
 
 /* I2C */
@@ -32,40 +43,28 @@ void i2c_start(void);
 // Termine une transmission I2C (condition STOP)
 void i2c_stop(void);
 
+/* utiles pour faciliter la communication*/
+
 // Envoie un octet sur le bus I2C
 void i2c_write(uint8_t data);
-
-// Lit un octet avec ACK
-uint8_t i2c_read_ack(void);
-
-// Lit un octet avec NACK (dernier octet)
-uint8_t i2c_read_nack(void);
-
 // Retourne le status de l'I2C (TWSR masqué)
 uint8_t i2c_get_status(void);
 
 
 /* UART */
 
-// Initialisation de l'UART
 void uart_init(void);
 
-// Transmission d'un caractère via UART
 void uart_tx(char c);
 
-// Conversion et affichage en hexadécimal
 void uart_printhex(uint8_t value);
 
-// Transmission d'une chaîne de caractères via UART
 void uart_printstr(const char* str);
 
 // Envoie une chaîne avec retour à la ligne
 void uart_println(const char *str);
 
-/* Autres */
+// Affiche le status I2C après chaque envoi de data
 void print_status(const char *msg);
-
-// Réinitialise le module I2C (utile après erreurs)
-void i2c_reset(void);
 
 #endif

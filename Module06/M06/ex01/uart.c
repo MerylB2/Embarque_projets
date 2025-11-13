@@ -6,7 +6,7 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 15:33:44 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/13 17:45:56 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/13 15:24:50 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,14 +59,6 @@ void uart_println(const char *str)
     uart_tx('\n');
 }
 
-/*
- * print_hex_value - Affiche les 7 octets d'une mesure AHT20
- * 
- * Format de sortie: 0xXX 0xXX 0xXX 0xXX 0xXX 0xXX 0xXX
- * avec retour à la ligne à la fin.
- * 
- * Fonction demandée dans l'ex01.
- */
 void print_hex_value(char *c)
 {
     const char hex[] = "0123456789ABCDEF";
@@ -81,26 +73,4 @@ void print_hex_value(char *c)
 
     uart_tx('\r');
     uart_tx('\n');
-}
-
-/*
- * Affiche un float avec précision donnée
- * 
- * Utilise dtostrf() pour convertir le float en string.
- * dtostrf est autorisé (fait partie de stdlib.h)
- * 
- * Paramètres:
- * - value: le nombre à afficher
- * - precision: nombre de décimales (1 pour 0.1, 2 pour 0.01)
- */
-void uart_printfloat(float value, uint8_t precision)
-{
-    char buffer[16];
-    
-    // Convertir le float en string
-    // dtostrf(value, largeur_min, precision, buffer)
-    dtostrf(value, 1, precision, buffer);
-    
-    // Afficher le résultat
-    uart_printstr(buffer);
 }

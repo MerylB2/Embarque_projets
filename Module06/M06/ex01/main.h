@@ -6,7 +6,7 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 13:04:30 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/13 17:46:50 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/13 17:18:00 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,8 +64,5 @@ void uart_println(const char *str);
 
 /* Écrit le contenu des 7 octets d'une mesure AHT20 en hexa */
 void print_hex_value(char *c);
-
-/*  Affiche un float avec précision donnée */
-void uart_printfloat(float value, uint8_t precision);
 
 #endif

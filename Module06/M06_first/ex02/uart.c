@@ -6,7 +6,7 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/12 15:33:44 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/13 17:45:56 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/12 17:25:46 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,13 +15,34 @@
 
 void uart_init(void)
 {
+    /* Calcul du baudrate en mode U2X pour meilleure précision
+     * UBRR = (F_CPU / (8 * BAUDRATE)) - 1 (table 20-1  page 182)
+     * Pour 16MHz et 115200 bauds : UBRR = 16 (erreur +2.1%) p.196 - ligne 4 table(20-4)
+     */
     uint16_t ubrr = (F_CPU / (8UL * BAUD)) - 1;
     
+    /* Configuration du baud rate (p.182) 
+     * "UBRRnContents of the UBRRnH and UBRRnL Registers, (0-4095)"
+     * voir aussi : USART initialization code example (20.5 - p 184-185)
+     */
     UBRR0H = (uint8_t)(ubrr >> 8);
     UBRR0L = (uint8_t)(ubrr);
     
+    /* Activation du mode double vitesse U2X0 (20.3.2 - p.182)
+     * Bit 1 – U2Xn: Double the USART Transmission Speed (p.201)
+	 * Permet une meilleure précision du baud rate
+	 */
     UCSR0A = (1 << U2X0);
+    
+    /* Activation du transmetteur (20.6 - p.185-186)
+     * 20.11.3 UCSRnB – USART Control and Status Register n B (p.201-202)
+	 * bit 3 – TXEN0: Transmitter Enable
+	 */
     UCSR0B = (1 << TXEN0);
+    
+    /*Configuration du format: 8 bits, 1 stop bit, pas de parité (p.186-187)
+	 * UCSZ01:UCSZ00 = 11 pour 8 bits de données (Table 20-11 p.203)
+     */
     UCSR0C = (1 << UCSZ01) | (1 << UCSZ00);
 }
 
@@ -57,50 +78,4 @@ void uart_println(const char *str)
     uart_printstr(str);
     uart_tx('\r');
     uart_tx('\n');
-}
-
-/*
- * print_hex_value - Affiche les 7 octets d'une mesure AHT20
- * 
- * Format de sortie: 0xXX 0xXX 0xXX 0xXX 0xXX 0xXX 0xXX
- * avec retour à la ligne à la fin.
- * 
- * Fonction demandée dans l'ex01.
- */
-void print_hex_value(char *c)
-{
-    const char hex[] = "0123456789ABCDEF";
-    
-    // Afficher les 7 octets
-    for (uint8_t i = 0; i < 7; i++)
-    {
-        uart_tx(hex[(c[i] >> 4) & 0x0F]);
-        uart_tx(hex[c[i] & 0x0F]);
-        uart_tx(' ');
-    }
-
-    uart_tx('\r');
-    uart_tx('\n');
-}
-
-/*
- * Affiche un float avec précision donnée
- * 
- * Utilise dtostrf() pour convertir le float en string.
- * dtostrf est autorisé (fait partie de stdlib.h)
- * 
- * Paramètres:
- * - value: le nombre à afficher
- * - precision: nombre de décimales (1 pour 0.1, 2 pour 0.01)
- */
-void uart_printfloat(float value, uint8_t precision)
-{
-    char buffer[16];
-    
-    // Convertir le float en string
-    // dtostrf(value, largeur_min, precision, buffer)
-    dtostrf(value, 1, precision, buffer);
-    
-    // Afficher le résultat
-    uart_printstr(buffer);
 }
