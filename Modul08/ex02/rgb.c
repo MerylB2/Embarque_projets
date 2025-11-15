@@ -6,68 +6,27 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/15 23:20:48 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/15 23:33:11 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/15 23:47:14 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "main.h"
 
-#include <avr/io.h>
-#include <util/delay.h>
-
-/*
-** Tableau des couleurs
-** Format: {r, g, b}
-*/
-typedef struct
-{
-	uint8_t r;
-	uint8_t g;
-	uint8_t b;
-} color_t;
-
-static const color_t colors[] = {
-	{0xFF, 0x00, 0x00},  // Rouge
-	{0x00, 0xFF, 0x00},  // Vert
-	{0x00, 0x00, 0xFF},  // Bleu
-	{0xFF, 0xFF, 0x00},  // Jaune
-	{0x00, 0xFF, 0xFF},  // Cyan
-	{0xFF, 0x00, 0xFF},  // Magenta
-	{0xFF, 0xFF, 0xFF}   // Blanc
-};
-
-#define NB_COLORS (sizeof(colors) / sizeof(colors[0]))
-
-/*
-** Fonction statique pour transmettre un octet via SPI
-** Datasheet ATmega328P Section 18.5.2 - SPDR: SPI Data Register
-*/
-static void spi_transmit(uint8_t data)
+void spi_transmit(uint8_t data)
 {
 	SPDR = data;
 	
-	/*
-	** Attente de fin de transmission
-	** Section 18.5.1 - Bit 7 SPIF: SPI Interrupt Flag
-	*/
 	while (!(SPSR & (1 << SPIF)))
 		;
 }
 
-/*
-** Envoie la trame de début du protocole APA102
-** Start Frame = 32 bits à 0
-*/
-static void apa102_start_frame(void)
+void apa102_start_frame(void)
 {
 	for (uint8_t i = 0; i < 4; i++)
 		spi_transmit(0x00);
 }
 
-/*
-** Envoie la trame de fin du protocole APA102
-** End Frame = 32 bits à 1
-*/
-static void apa102_end_frame(void)
+void apa102_end_frame(void)
 {
 	for (uint8_t i = 0; i < 4; i++)
 		spi_transmit(0xFF);
@@ -78,7 +37,8 @@ static void apa102_end_frame(void)
 ** Trame: [111BBBBB][Blue][Green][Red]
 ** brightness: 0-31 (luminosité)
 */
-static void apa102_set_led(uint8_t brightness, uint8_t r, uint8_t g, uint8_t b)
+
+void apa102_set_led(uint8_t brightness, uint8_t r, uint8_t g, uint8_t b)
 {
 	spi_transmit(0xE0 | (brightness & 0x1F));
 	spi_transmit(b);
@@ -86,7 +46,7 @@ static void apa102_set_led(uint8_t brightness, uint8_t r, uint8_t g, uint8_t b)
 	spi_transmit(r);
 }
 
-void rgb_init(void)
+void spi_init(void)
 {
 	/*
 	** Configuration des pins SPI en sortie
@@ -125,23 +85,28 @@ void rgb_set_color(uint8_t r, uint8_t g, uint8_t b)
 	apa102_end_frame();
 }
 
-int main(void)
+void rgb_set_one_led(uint8_t led_index, uint8_t r, uint8_t g, uint8_t b)
 {
-	uint8_t index = 0;
-
-	rgb_init();
+	apa102_start_frame();
 	
-	while (1)
+	/*
+	** Les LEDs APA102 sont en série: D6 -> D7 -> D8
+	** Il faut envoyer une trame pour chaque LED
+	*/
+	for (uint8_t i = 0; i < 3; i++)
 	{
-		// Affiche la couleur courante
-		rgb_set_color(colors[index].r, 
-		              colors[index].g, 
-		              colors[index].b);
-		
-		_delay_ms(1000);
-		
-		// Passe à la couleur suivante (boucle)
-		index = (index + 1) % NB_COLORS;
+		if (i == led_index)
+		{
+			// LED allumée avec brightness 10
+			apa102_set_led(10, r, g, b);
+		}
+		else
+		{
+			// LED éteinte
+			apa102_set_led(0, 0, 0, 0);
+		}
 	}
-	return 0;
+	
+	apa102_end_frame();
 }
+
