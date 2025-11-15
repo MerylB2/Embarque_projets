@@ -7,10 +7,13 @@
 
 #define LED_ON_TIME 250    // Durée d'allumage de chaque LED (ms)
 
-/*
-** Initialise le SPI en mode maître
-*/
+
+/* SPI & APA102 */
 void spi_init(void);
+void spi_transmit(uint8_t data);
+void apa102_start_frame(void);
+void apa102_end_frame(void);
+void apa102_set_led(uint8_t brightness, uint8_t r, uint8_t g, uint8_t b);
 
 /*
 ** Allume uniquement une LED parmi D6, D7, D8
@@ -21,11 +24,6 @@ void spi_init(void);
 ** Les autres LEDs sont éteintes
 */
 void rgb_set_one_led(uint8_t led_index, uint8_t r, uint8_t g, uint8_t b);
-void spi_transmit(uint8_t data);
-void apa102_start_frame(void);
-void apa102_end_frame(void);
-void apa102_set_led(uint8_t brightness, uint8_t r, uint8_t g, uint8_t b);
-
 
 
 #endif

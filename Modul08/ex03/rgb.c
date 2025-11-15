@@ -6,7 +6,7 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/15 23:20:48 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/15 23:52:01 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/16 00:22:30 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,53 +42,35 @@ void apa102_set_led(uint8_t brightness, uint8_t r, uint8_t g, uint8_t b)
 
 void spi_init(void)
 {
-	DDRB |= (1 << PB5);  // SCK (pin 17)
-	DDRB |= (1 << PB3);  // MOSI (pin 15)
-	DDRB |= (1 << PB2);  // SS (requis pour mode maître)
+	DDRB |= (1 << PB5);  // SCK
+	DDRB |= (1 << PB3);  // MOSI
+	DDRB |= (1 << PB2);  // SS
 	
-	/*
-	** SPCR - SPI Control Register
-	** Section 18.5.1
-	** SPE: SPI Enable
-	** MSTR: Master mode
-	** SPR1=0, SPR0=0: Clock = fosc/4 = 4MHz
-	*/
+	/* SPCR - SPI Control Register */
 	SPCR = (1 << SPE) | (1 << MSTR);
 }
 
-void rgb_set_color(uint8_t r, uint8_t g, uint8_t b)
+void rgb_set_jauge(uint8_t level)
 {
 	apa102_start_frame();
 	
-	apa102_set_led(5, r, g, b);
-
-	apa102_set_led(0, 0, 0, 0);
-	apa102_set_led(0, 0, 0, 0);
+	// D6 - Allumée si level >= 1
+	if (level >= 1)
+		apa102_set_led(5, 0x00, 0xFF, 0x00);
+	else
+		apa102_set_led(0, 0x00, 0x00, 0x00);
 	
-	apa102_end_frame();
-}
-
-void rgb_set_one_led(uint8_t led_index, uint8_t r, uint8_t g, uint8_t b)
-{
-	apa102_start_frame();
+	// D7 - Allumée si level >= 2
+	if (level >= 2)
+		apa102_set_led(15, 0xFF, 0x00, 0x00);
+	else
+		apa102_set_led(0, 0x00, 0x00, 0x00);
 	
-	/*
-	** Les LEDs APA102 sont en série: D6 -> D7 -> D8
-	** Il faut envoyer une trame pour chaque LED
-	*/
-	for (uint8_t i = 0; i < 3; i++)
-	{
-		if (i == led_index)
-		{
-			// LED allumée avec brightness 10
-			apa102_set_led(10, r, g, b);
-		}
-		else
-		{
-			// LED éteinte
-			apa102_set_led(0, 0, 0, 0);
-		}
-	}
+	// D8 - Allumée si level >= 3
+	if (level >= 3)
+		apa102_set_led(5, 0xFF, 0xFF, 0x00);
+	else
+		apa102_set_led(0, 0x00, 0x00, 0x00);
 	
 	apa102_end_frame();
 }
