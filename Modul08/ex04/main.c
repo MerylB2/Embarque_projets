@@ -6,7 +6,7 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/15 23:34:13 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/16 00:30:13 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/16 01:58:09 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,39 +15,21 @@
 
 int main(void)
 {
-	uint16_t adc_value;
-	uint8_t jauge_level;
-	
-	adc_init();
+	char buffer[20];  // Buffer pour la commande
+
+	uart_init();
 	spi_init();
+	
+	uart_printstr("\r\n=== WELCOME - IL-Series ===\r\n");
+	uart_printstr("Commands:\r\n");
+	uart_printstr("  #RRGGBBDX    - Set LED color (DX = D6/D7/D8)\r\n");
+	uart_printstr("  #FULLRAINBOW - Rainbow effect\r\n\r\n");
 	
 	while (1)
 	{
-		// Lecture de la valeur du potentiomètre
-		adc_value = adc_read(POT_CHANNEL);
-		
-		/*
-		** Conversion de la valeur ADC en niveau de jauge (0-3)
-		** 
-		** ADC 0-340:     niveau 0 (toutes éteintes) - position basse
-		** ADC 341-681:   niveau 1 (D6 seule) - 33%
-		** ADC 682-1023:  niveau 2 (D6+D7) - 66%
-		** ADC 1023:      niveau 3 (toutes) - 100%
-		*/
-		if (adc_value < THRESHOLD_33)
-			jauge_level = 0;
-		else if (adc_value < THRESHOLD_66)
-			jauge_level = 1;
-		else if (adc_value < 1023)
-			jauge_level = 2;
-		else
-			jauge_level = 3;
-		
-		// Affichage de la jauge
-		rgb_set_jauge(gauge_level);
-		
-		// Petit délai pour éviter le scintillement
-		_delay_ms(50);
+		uart_printstr("> ");
+		read_line(buffer, sizeof(buffer));
+		process_command(buffer);
 	}
 	
 	return 0;
