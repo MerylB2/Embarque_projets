@@ -6,7 +6,7 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/15 23:20:48 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/16 02:03:48 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/16 02:59:48 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ static void update_leds(void)
 		if (led_colors[i][0] == 0 && led_colors[i][1] == 0 && led_colors[i][2] == 0)
 			brightness = 0;
 		else
-			brightness = 10;
+			brightness = 2;
 		apa102_set_led(brightness, led_colors[i][0], led_colors[i][1], led_colors[i][2]);
 	}
 	apa102_end_frame();

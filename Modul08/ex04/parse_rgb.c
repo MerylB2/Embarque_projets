@@ -6,7 +6,7 @@
 /*   By: cmetee-b <cmetee-b@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/16 00:01:46 by cmetee-b          #+#    #+#             */
-/*   Updated: 2025/11/16 02:49:03 by cmetee-b         ###   ########.fr       */
+/*   Updated: 2025/11/16 03:00:29 by cmetee-b         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void fullrainbow_mode(void)
 {
-	uart_printstr("OK - Rainbow mode (press any key to exit)\r\n");
+	uart_printstr(" ✓ OK - Rainbow mode (press any key to exit)\r\n");
 	
 	/*
 	** Vider le buffer UART avant de commencer
@@ -141,12 +141,12 @@ void process_command(char *cmd)
 	rgb_set_led(led_index, red, green, blue);
 	
 	// Afficher la couleur au format #RRGGBBDX (D toujours en majuscule)
-	// uart_tx('#');
-	// print_hex_byte(red);
-	// print_hex_byte(green);
-	// print_hex_byte(blue);
-	// uart_tx('D');
-	// uart_tx(led_char); // 6, 7 ou 8
-	uart_printstr("Ok \r\n");
+	uart_tx('#');
+	print_hex_byte(red);
+	print_hex_byte(green);
+	print_hex_byte(blue);
+	uart_tx('D');
+	uart_tx(led_char); // 6, 7 ou 8
+	uart_printstr(" : ✓ OK \r\n");
 }
 
